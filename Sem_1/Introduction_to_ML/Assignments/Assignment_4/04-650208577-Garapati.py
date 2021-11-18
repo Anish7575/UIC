@@ -1,3 +1,6 @@
+# Name: Sai Anish Garapati
+# UIN: 650208577
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.mixture import GaussianMixture
@@ -32,7 +35,6 @@ def k_means_objective_function(C, clusters):
     return error
 
 
-
 def Programming_P1():
     K = 2
     X = generate_training_data()
@@ -42,23 +44,44 @@ def Programming_P1():
 
     epoch = 0
 
-    while epoch != 5:
+    while True:
         new_C = []
         clusters = get_clusters(X, C)
-        print(k_means_objective_function(C, clusters))
+        print('K_means_objective_function for epoch {} = '.format(epoch + 1), k_means_objective_function(C, clusters))
+
         for cluster in clusters:
             new_C.append(np.mean(cluster, axis=0))
 
-        # print(C, new_C)
-
-        plt.plot(clusters[0][:, 0], clusters[0][:, 1], 'bo')
-        plt.plot(clusters[1][:, 0], clusters[1][:, 1], 'ro')
-        plt.plot(C[0][0], C[0][1], 'yX')
-        plt.plot(C[1][0], C[1][1], 'gX')
+        plt.title('Plots of clusters for epoch {} with the cluster centroids (P1)'.format(epoch + 1))
+        plt.xlabel('x1')
+        plt.ylabel('x2')
+        plt.plot(clusters[0][:, 0], clusters[0][:, 1], 'bo', label='Cluster 1')
+        plt.plot(clusters[1][:, 0], clusters[1][:, 1], 'ro', label='Cluster 2')
+        plt.plot(C[0][0], C[0][1], 'yX', label='Cluster Centroid 1')
+        plt.plot(C[1][0], C[1][1], 'gX', label='Cluster Centroid 2')
+        plt.legend(title='Legend')
         plt.show()
+
+        if epoch >= 4 and (C == np.array(new_C)).all():
+            break
 
         C = np.array(new_C)
         epoch += 1
+    
+    print()
+    plt.title('Plots of Final clusters with the cluster centroids (P1)')
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.plot(clusters[0][:, 0], clusters[0][:, 1], 'bo', label='Cluster 1')
+    plt.plot(clusters[1][:, 0], clusters[1][:, 1], 'ro', label='Cluster 2')
+    plt.plot(C[0][0], C[0][1], 'yX', label='Cluster Centroid 1')
+    plt.plot(C[1][0], C[1][1], 'gX', label='Cluster Centroid 2')
+    plt.legend(title='Legend')
+    plt.show()
+
+    print('Final Cluster centroids:', C, '\n')
+
+    print('K_means_objective_function for final cluster assignment: ', k_means_objective_function(C, clusters))
 
 
 def gaussian_distribution_function(x, mu, cov):
@@ -73,36 +96,39 @@ def Programming_P2():
     means = gm.means_
     weights = gm.weights_
     covariances = gm.covariances_
-    print('Mean:', means, means.shape)
-
-    print('Weights:', weights, weights.shape)
-    print('Covariance: ', covariances, covariances.shape)
 
     X_predict = gm.predict(X)
 
-    print(X_predict)
-
-    plt.plot(X[X_predict == 0, 0], X[X_predict == 0, 1], 'bo')
-    plt.plot(X[X_predict == 1, 0], X[X_predict == 1, 1], 'ro')
-    plt.plot(means[0][0], means[0][1], 'yX')
-    plt.plot(means[1][0], means[1][1], 'gX')
+    plt.title('Plots of Final clusters assignments with mean vectors (P2)')
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.plot(X[X_predict == 0, 0], X[X_predict == 0, 1], 'bo', label='Cluster 1')
+    plt.plot(X[X_predict == 1, 0], X[X_predict == 1, 1], 'ro', label='Cluster 2')
+    plt.plot(means[0][0], means[0][1], 'yX', label='Mean vector 1')
+    plt.plot(means[1][0], means[1][1], 'gX', label='Mean vector 2')
+    plt.legend(title='Legend')
     plt.show()
 
-    print('Predicted class using gmm calssifier: ', gm.predict([[1.5, 1.5]]))
+    print("Parameters learned through gmm classifier")
+    print('Mean:', means)
+    print('Weights:', weights)
+    print('Covariance Matrix: ', covariances, '\n')
 
     resp = []
 
     for i in range(2):
-        resp.append(np.count_nonzero(X_predict == i)/len(X_predict) * gaussian_distribution_function(P, means[i].reshape(2, 1), covariances[i]))
-
-    print(resp)
+        resp.append(weights[i] * gaussian_distribution_function(P, means[i].reshape(2, 1), covariances[i]))
 
     resp = [resp[i]/sum(resp) for i in range(2)]
 
-    print('responsibility values:', resp)
-    print('Predicted class value using resp values: ', np.argmax(resp))
+    print('responsibility values corresponding to two components:', resp[0], resp[1])
+    print('Predicted class value using responsibility values: ', np.argmax(resp))
+    print('Predicted class using gmm classifier: ', gm.predict([[1.5, 1.5]])[0])
+
 
 if __name__ == '__main__':
-    # Programming_P1()
+    print('----------------------------------------------------')
+    Programming_P1()
 
+    print('----------------------------------------------------')
     Programming_P2()
